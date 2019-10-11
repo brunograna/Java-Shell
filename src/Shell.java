@@ -34,6 +34,15 @@ public class Shell {
                 }
                 System.setProperty("user.dir", actualPath);
                 continue;
+            }else if(comando.equalsIgnoreCase("!!")){
+                comando = history.get(history.size()-1);
+            }else if(comando.startsWith("!")){
+                try{
+                    comando = history.get(Integer.parseInt(comando.substring(1)));
+                }catch (Exception e){
+                    System.out.println("Comando nao informado corretamente");
+                    continue;
+                }
             }
 
             List<String> commands =  new ArrayList<String>(Arrays.asList(comando.split(" ")));
