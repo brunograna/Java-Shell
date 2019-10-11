@@ -1,4 +1,5 @@
 import java.io.*;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Scanner;
 import java.util.List;
@@ -28,9 +29,19 @@ public class Shell {
                 if(comando.indexOf("..") > 0){
                     String[] pathNow = actualPath.split("/");
                     pathNow = Arrays.copyOf(pathNow, pathNow.length-1);
-                    actualPath = String.join("/", pathNow);
+                    if(!Files.isDirectory(new File(String.join("/", pathNow)).toPath())){
+                        System.out.println("Caminho nao existe");
+                        continue;
+                    }else{
+                        actualPath = String.join("/", pathNow);
+                    }
                 }else{
-                    actualPath = actualPath + comando.substring(3);
+                    if(!Files.isDirectory(new File(actualPath + comando.substring(3)).toPath())){
+                        System.out.println("Caminho nao existe");
+                        continue;
+                    }else{
+                        actualPath = actualPath + comando.substring(3);
+                    }
                 }
                 System.setProperty("user.dir", actualPath);
                 continue;
@@ -40,7 +51,7 @@ public class Shell {
                 try{
                     comando = history.get(Integer.parseInt(comando.substring(1)));
                 }catch (Exception e){
-                    System.out.println("Comando nao informado corretamente");
+                    System.out.println("Comando informado erroneamente");
                     continue;
                 }
             }
@@ -49,20 +60,24 @@ public class Shell {
 //            System.out.println("Run command: "+commands.toString());
             history.add(comando);
 
-            ProcessBuilder pb = new ProcessBuilder(commands);
-            pb.directory(new File(actualPath));
-            Process process = pb.start();
+            try{
+                ProcessBuilder pb = new ProcessBuilder(commands);
+                pb.directory(new File(actualPath));
+                Process process = pb.start();
 
-            // obtain the input stream
-            InputStream is = process.getInputStream();
-            InputStreamReader isr = new InputStreamReader(is);
-            BufferedReader br = new BufferedReader(isr);
+                // obtain the input stream
+                InputStream is = process.getInputStream();
+                InputStreamReader isr = new InputStreamReader(is);
+                BufferedReader br = new BufferedReader(isr);
 
-            // read the output of the process
-            String line;
-            while ( (line = br.readLine()) != null)
-                System.out.println(line);
-            br.close();
+                // read the output of the process
+                String line;
+                while ( (line = br.readLine()) != null)
+                    System.out.println(line);
+                br.close();
+            }catch (Exception e){
+                System.out.println("Comando informado erroneamente");
+            }
         }
     }
 }
